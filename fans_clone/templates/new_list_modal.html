@@ -1,0 +1,21 @@
+              <!-- Modal Structure For the new list form -->
+              <div id="modal2" class="modal">
+                <div class="modal-content">
+                  <h4>Create new list</h4>
+                  <p>Create a new list to add people to this custom list</p>
+                  <form role="form" method="POST" class="col s12">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="input-field col s12">
+                            {{ form.title }}
+                            <label for="title">Title for the list</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+                  <button type="submit" name="action" class="waves-effect waves-green btn-flat">Save</button>
+                </form>
+                </div>
+        </div>
+              <!-- END Modal Structure For the list select -->

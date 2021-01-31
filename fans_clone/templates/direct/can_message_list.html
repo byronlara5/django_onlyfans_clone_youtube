@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="divider"></div>
+<div class="section">
+  <h5>People that you are following</h5>
+  <p>These people are the ones that you can message:</p>
+</div>
+<div class="divider"></div>
+
+{% for person in people %}
+    <div class="col s12 m4">
+              <div class="card">
+                <div class="card-image">
+                  {% if person.subscribed.profile.banner %}
+                    <img src="{{ person.subscribed.profile.banner.url }}">
+                  {% else %}
+                    <img src="{% static 'img/nobanner.jpg' %}">
+                  {% endif %}
+                </div>
+                <div class="card-action">
+                    <div class="row">
+                        <div class="col s4">
+                        {% if person.subscribed.profile.picture %}
+                            <img src="{{ person.subscribed.profile.picture.url }}" class="circle responsive-img">
+                          {% else %}
+                            <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+                          {% endif %}
+                        </div>
+                        <div class="col s8">
+                            <span class="card-title">
+                                {{ person.subscribed.first_name }} {{ person.subscribed.last_name }}
+                            </span>
+                            <br>
+                            <span>@<b>{{ person.subscribed.username }}</b></span>
+                            <p>{{ person.subscribed.profile.profile_info }}</p>
+                            <a href="{% url 'new-conversation' person.subscribed.username %}" class="waves-effect waves-light btn"><i class="material-icons right">send</i>Send a message!</a>
+                        </div>
+                    </div>
+                </div>
+              </div>
+    </div>
+{% endfor %}
+
+
+{% endblock %}

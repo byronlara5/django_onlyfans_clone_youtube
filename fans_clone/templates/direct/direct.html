@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% load humanize %}
+
+{% block content %}
+
+<div class="col s12 m4">
+<ul class="collection with-header">
+    <li class="collection-header">
+        <h5>Active chats</h5>
+    </li>
+    {% for message in messages %}
+    <a style="color: gray;" href="{% url 'directs' message.user.username %}">
+        <li class="collection-item avatar {% if active_direct == message.user.username %}active{% endif %}">
+        {% if message.user.profile.picture %}
+            <img src="{{ message.user.profile.picture.url }}" class="circle responsive-img">
+        {% else %}
+            <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+        {% endif %}
+            <span class="title">{{ message.user.first_name }} {{ message.user.last_name }}</span>
+            <p><b>@{{ message.user.username }}</b></p>
+            <span class="new badge">{{ message.unread }}</span>
+            <a href="" class="secondary-content red-text"><i class="material-icons">delete</i></a>
+    </li>
+    </a>
+    {% endfor %}
+
+</div>
+
+<div style="overflow-y: scroll;" class="col s12 m8">
+    <div style="max-width: 600px;" class="card">
+        <div class="card-content">
+
+            <div class="center-align">
+            {% if directs.has_next %}
+                <a id="loadmorebtn" class="waves-effect waves-light btn-small"><i class="material-icons left">add</i>Load more</a>
+                <input id="page_number" type="hidden" value="{{ directs.next_page_number }}">
+            {% endif %}
+            </div>
+
+            <ol id="oldirects" style="list-style-type: none; display: flex; flex-direction: column-reverse;" class="collection">
+            {% for direct in directs %}
+                <li style="border-bottom: 0px;" class="collection-item avatar">
+                    {% if direct.sender.profile.picture %}
+                        <img src="{{ direct.sender.profile.picture.url }}" class="circle responsive-img">
+                    {% else %}
+                        <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+                    {% endif %}
+                    <span class="title"><b>{{ direct.sender.first_name }} {{ direct.sender.last_name }}</b></span>
+                    <p>{{ direct.body }}</p>
+                    <p class="right-align">{{ direct.date | naturaltime }}</p>
+                </li>  
+            {% endfor %}              
+            </ol>
+        </div>
+    </div>
+
+    <div class="card-action">
+        <div class="row">
+            <form id="senddirectform" method="POST" action="{% url 'send-direct' %}">
+                {% csrf_token %}
+                <div class="input-field col s9">
+                    <input type="hidden" name="to_user" value="{{ active_direct }}">
+                    <input id="text" name="body" type="text" class="validate">
+                    <label for="text">Type your message</label>
+                  </div>
+                  <div class="input-field col s9">
+                  <button class="btn waves-effect waves-light" type="submit" name="action">Send
+                    <i class="material-icons right">send</i>
+                  </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    // This is for the AJAX request in loadmore.js script. So we can send post request.
+    // Because csrf_token is neccesary for ajax requests.
+    window.CSRF_TOKEN = "{{ csrf_token }}";
+</script>
+
+<script src="{% static 'js/loadmore.js' %}"></script>
+{% endblock %}

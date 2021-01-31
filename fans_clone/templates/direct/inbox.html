@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<ul class="collection with-header">
+    <li class="collection-header">
+        <h3>Inbox</h3>
+        <h5>Active conversations</h5>
+    </li>
+    {% for message in messages %}
+        <a href="{% url 'directs' message.user.username %}">
+        <li class="collection-item avatar">
+            {% if message.user.profile.picture %}
+                <img src="{{ message.user.profile.picture.url }}" class="circle responsive-img">
+            {% else %}
+                <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+            {% endif %}
+                <span class="title">{{ message.user.first_name }} {{ message.user.last_name }}</span>
+                <p><b>@{{ message.user.username }}</b></p>
+                <span class="new badge">{{ message.unread }}</span>
+                <a href="" class="secondary-content red-text"><i class="material-icons">delete</i></a>
+        </li>
+        </a>
+    
+    {% empty %}
+    <div class="center-align">
+        <br><br><br><br><br>
+        <i class="material-icons large">inbox</i>
+        <h3>No messages</h3>
+        <h5>Your inbox is empty</h5>
+        <br>
+        <br><br><br><br><br>
+    </div>
+    {% endfor %}
+  </ul>
+<div class="center-align">
+  <a href="{% url 'user-search' %}" class="waves-effect waves-light btn-large"><i class="material-icons right">search</i>Search</a>
+  <a href="{% url 'people-we-can-message' %}" class="waves-effect waves-light btn-large"><i class="material-icons right">person</i>Following</a>
+</div>
+{% endblock %}

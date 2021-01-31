@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% load humanize %}
+{% block banner %}
+
+    <div class="col s12 m12">
+      <div class="card">
+
+        <div class="card-image">
+          {% if profile.banner %}
+            <img src="{{ profile.banner.url }}">
+          {% else %}
+            <img src="{% static 'img/nobanner.jpg' %}">
+          {% endif %}
+        </div>
+
+        <div class="card-action">
+          <div class="row">
+
+            <div class="col s2">
+              {% if profile.picture %}
+                <img src="{{ profile.picture.url }}" class="circle responsive-img">
+              {% else %}
+                <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+              {% endif %}
+            </div>
+
+            <div class="right-align">
+
+              {% if user.is_authenticated and user == profile.user %}
+                <a href="{% url 'edit-profile' %}" class="btn"><i class="material-icons">edit</i>Edit profile</a>
+              {% endif %}
+
+              {% if user.is_authenticated and user != profile.user %}
+                {% if person_in_list == True %}
+                  <a href="{% url 'remove-from-list' profile.user.username %}" class="btn red"><i class="material-icons">favorite</i>Remove</a>
+                {% else %}
+                  <a href="#modal1" class="modal-trigger"><i class="material-icons">favorite</i>Favorite</a>
+                {% endif %}
+              {% endif %}
+
+            </div>
+
+              <!-- Modal Structure For the list select -->
+              <div id="modal1" class="modal">
+                <div class="modal-content">
+                  <h4>Save to list</h4>
+                  <form role="form" method="POST" action="{% url 'add-to-list' %}" id="addtolistform">
+                    {% csrf_token %}
+                    <div class="input-field col s12">
+                      <select name="list_item">
+                        <option value="" disabled selected>Choose from your custom lists</option>
+                        {% for favorite in favorite_list %}
+                          <option value="{{ favorite.id }}">{{ favorite.title }}</option>
+                        {% endfor %}
+                      </select>
+                      <label>Favorite People List</label>
+                    </div>
+                    <input type="hidden" name="to" value="{{ profile.user.username }}">
+                    <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                      <i class="material-icons right">send</i>
+                    </button>
+                  </form>
+                </div>
+                <div class="modal-footer">
+                  <a href="#modal2" class="waves-effect waves-green btn-flat modal-trigger">New List</a>
+                  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                </div>
+              </div>
+              <!-- END Modal Structure For the list select -->
+
+            {% include "new_list_modal.html" %}
+
+            <div class="col s10">
+              <h3><b>{{ profile.user.first_name }} {{ profile.user.last_name }}</b></h3>
+              <h5>@{{ profile.user.username }}</h5>
+              {{ profile.profile_info }}
+            </div>
+            <div class="col s12">
+            <div class="row">
+              <div class="col s12 m4">
+                <div class="icon-block">
+                  <h2 class="center light-blue-text"><i class="material-icons">wallpaper</i></h2>
+                  <h5 class="center">Posts</h5>
+                  <h4 class="center">{{ posts_count }}</h4>
+                  <p></p>
+                </div>
+              </div>
+                <div class="col s12 m4">
+                  <div class="icon-block">
+                    <h2 class="center light-blue-text"><i class="material-icons">attach_money</i></h2>
+                    <h5 class="center">Per month</h5>
+                    <h4 class="center">{% if income == None %}0{% else %}{{ income.tier__price__sum }}{% endif %}</h4>
+                    <p></p>
+                  </div>
+                </div>
+                <div class="col s12 m4">
+                <div class="icon-block">
+                  <h2 class="center light-blue-text"><i class="material-icons">people</i></h2>
+                  <h5 class="center">Fans</h5>
+                  <h4 class="center">{{ fans_count }}</h4>
+                  <p></p>
+                </div>
+                </div>
+          </div>
+          </div>
+          </div>          
+        </div>
+
+      {% if user.is_authenticated and user != profile.user %}
+        <div class="card-action">
+          <div class="row">
+            {% for tier in tiers %}
+            <div class="col s12 m4">
+              <div class="card-panel center-align">
+              <h3>${{ tier.price }}</h3>
+              <span>{{ tier.description }}</span>
+              <br><br>
+              <a href="{% url 'subscribe' profile.user.username tier.id %}" class="waves-effect waves-light btn amber"><i class="material-icons right">star</i>Subscribe</a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+         
+            <div class="card-tabs">
+              <ul class="tabs tabs-fixed-width">
+                <li class="tab col s3"><a target="_self" class="{% if page_type == 3 %}active{% endif %}" href="{% url 'profile' profile.user.username %}">Posts</a></li>
+                <li class="tab col s3"><a target="_self" class="{% if page_type == 1 %}active{% endif %}" href="{% url 'profilephotos' profile.user.username %}">Pictures</a></li>
+                <li class="tab col s3"><a target="_self" class="{% if page_type == 2 %}active{% endif %}" href="{% url 'profilevideos' profile.user.username %}">Videos</a></li>
+              </ul>
+            </div>
+
+          </div>
+
+
+        </div>
+    </div> 
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block content %}
+  {% if no_a_subscriber == False %}
+      <div class="center-align">
+        <br><br><br><br><br>
+        <i class="material-icons large">lock</i>
+        <h3>Subscribed to see {{ profile.user.first_name }} {{ profile.user.last_name }} content</h3>
+        <br><br><br><br><br>
+      </div>
+
+  {% else %}
+
+  {% if page_type == 1 %}
+    <div class="row">
+      {% for post in posts %}
+        <div class="col s4">
+          <img class="materialboxed" width="325" src="{{ post.file.url }}">
+        </div>
+      {% endfor %}
+    </div>   
+  {% elif page_type == 2 %}
+    <div class="row">
+      {% for post in posts %}
+      <div class="col s4">
+        <video class="responsive-video" controls="controls" preload="metadata">
+          <source src="{{ post.file.url }}#t=0.5" type="video/mp4">
+        </video>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+  
+
+  <div class="row">
+    {% for post in posts %}
+    
+          <div class="col s4">
+            <div class="card">
+
+              <div class="card-image">
+              {% if post.content.first.file.name|slice:"-3:" == 'jpg' %}
+                <a href="{{ post.get_absolute_url }}"><img src="{{ post.content.first.file.url }}"></a>
+                <span class="card-title"><b>{{ post.title }}</b></span>
+                <a class="btn-floating halfway-fab waves-effect waves-light red"><i class="material-icons">favorite</i></a>
+              {% else %}
+              <div class="video-container">
+                <video class="responsive-video" controls="controls" preload="metadata">
+                  <source src="{{ post.content.first.file.url }}#t=0.5" type="video/mp4">
+                </video>
+              </div>
+              {% endif %}
+              </div>
+
+              <div class="card-content">
+                {{ post.caption }}
+              </div>
+
+              <div class="card-action">
+                <div class="row">
+                  <div class="col s2">
+                    {% if post.user.profile.picture %}
+                      <img src="{{ post.user.profile.picture.url }}" class="circle responsive-img">
+                    {% else %}
+                      <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+                    {% endif %}              
+                  </div>
+                  <div class="col s10">
+                    <h6><b>{{ post.user.first_name }} {{ post.user.last_name }}</b></h6>
+                    <span>Published on: <b>{{ post.posted | naturaltime }}</b></span>
+                  </div>
+                </div>          
+              </div>
+
+              <div class="card-action">
+                <a href="{% url 'postlike' post.id %}"><i class="material-icons left">thumb_up</i>{{ post.likes_count }} Likes</a>
+                <a href="#"><i class="material-icons">favorite</i> {{ post.favorites_count }} Favorites</a>
+                <a href="#"><i class="material-icons">comment</i> {{ post.comments_count }} Comments</a>
+              </div>
+
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+        
+  {% endif %}
+
+{% endif %}
+
+<div class="col s12 m12 center-align">
+  {% if posts.has_previous %}
+    <a href="?page={{ posts.previous_page_number }}" class="waves-effect waves-light btn"><i class="material-icons right">arrow_back</i>Back</a>
+  {% endif %}
+
+  {% if posts.has_next %}
+    <a href="?page={{ posts.next_page_number }}" class="waves-effect waves-light btn"><i class="material-icons right">add</i>Load more</a>
+  {% endif %}
+</div>
+{% endblock %}
+
+

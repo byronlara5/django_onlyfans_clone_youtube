@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="divider"></div>
+<div class="section">
+  <h5>{{ user_list.title }}</h5>
+  <div class="right">
+    <a href="{% url 'list-people-delete' user_list.id %}" class="waves-effect waves-light btn red"><i class="material-icons right">delete</i>Delete list</a>
+  </div>
+  <p>People in the list</p>
+</div>
+<div class="divider"></div>
+
+{% for person in user_list.people.all %}
+    <div class="col s12 m4">
+              <div class="card">
+                <div class="card-image">
+                {% if person.profile.banner %}
+                    <img src="{{ person.profile.banner.url }}">
+                  {% else %}
+                    <img src="{% static 'img/nobanner.jpg' %}">
+                  {% endif %}
+                </div>
+                <div class="card-action">
+                    <div class="row">
+                        <div class="col s4">
+                        {% if person.profile.picture %}
+                            <img src="{{ person.profile.picture.url }}" class="circle responsive-img">
+                          {% else %}
+                            <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+                          {% endif %}
+                        </div>
+                        <div class="col s8">
+                            <span class="card-title">
+                                {{ person.first_name }} {{ person.last_name }}
+                            </span>
+                            <br>
+                            <span>@<b>{{ person.username }}</b></span>
+                            <p>{{ person.profile.profile_info }}</p>
+                        </div>
+                    </div>
+                </div>
+              </div>
+    </div>
+{% endfor %}
+
+
+{% endblock %}

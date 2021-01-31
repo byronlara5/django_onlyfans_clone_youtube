@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="divider"></div>
+<div class="section">
+  <h5>People subscribed to me:</h5>
+</div>
+<div class="divider"></div>
+
+{% for person in my_fans %}
+    <div class="col s12 m4">
+              <div class="card">
+                <div class="card-image">
+                {% if person.subscriber.profile.banner %}
+                    <img src="{{ person.subscriber.profile.banner.url }}">
+                  {% else %}
+                    <img src="{% static 'img/nobanner.jpg' %}">
+                  {% endif %}
+                </div>
+                <div class="card-action">
+                    <div class="row">
+                        <div class="col s4">
+                        {% if person.subscriber.profile.picture %}
+                            <img src="{{ person.subscriber.profile.picture.url }}" class="circle responsive-img">
+                          {% else %}
+                            <img src="{% static 'img/no_avatar.jpg' %}" class="circle responsive-img">
+                          {% endif %}
+                        </div>
+                        <div class="col s8">
+                            <span class="card-title">
+                                {{ person.subscriber.first_name }} {{ person.subscriber.last_name }}
+                            </span>
+                            <br>
+                            <span>@<b>{{ person.subscriber.username }}</b></span>
+                            <p>{{ person.subscriber.profile.profile_info }}</p>
+                        </div>
+                    </div>
+                </div>
+              </div>
+    </div>
+{% endfor %}
+
+
+{% endblock %}
